@@ -7,8 +7,8 @@ cache:
   - docker
   - vendor/bundle
 
-# services:
-  # - docker
+services:
+  - docker
 
 before_install:
   - gem install -f docker-api
