@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 
 language: ruby
 
@@ -7,12 +7,16 @@ cache:
   - docker
   - vendor/bundle
 
-services:
-  - docker
+# services:
+  # - docker
 
 before_install:
   - gem install -f docker-api
-  - curl -sSL https://get.docker.com/ | sudo sh
+  - git clone git@github.com:jpetazzo/dind.git
+  - cd dind && docker build -t dind .
+  - mkdir -p /tmp/dind
+  - docker run --privileged -v /tmp/dind:/var/run -t -i dind
+  - export DOCKER_HOST='unix:///tmp/dind/docker.sock'
 
 script:
   - docker pull chinthakagodawita/soe:php5.5
