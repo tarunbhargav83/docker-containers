@@ -27,8 +27,9 @@ shared_context 'soe' do
 
   before(:all) do
     image_name = "#{SOE_IMAGE_PREFIX}#{SOE_VERSION}"
+    image = Docker::Image.create('fromImage' => image_name)
     set :os, family: SOE_OS_FAMILY
-    set :docker_image, image_name
+    set :docker_image, image.id
   end
 
   it 'Installs the right version of Ubuntu' do
@@ -64,13 +65,13 @@ shared_context 'soe' do
   end
 
   describe 'Supervisord Services' do
-    describe command("supervisord && sleep #{SERVICE_TIMEOUT} && supervisorctl status") do
+    describe command("sleep #{SERVICE_TIMEOUT} && supervisorctl status") do
       describe 'All Services Running' do
         its(:stdout) { should contains_count service_count, service_running_msg }
       end
 
       # Sleeping to make sure all services come up.
-      describe command("supervisord && sleep #{SERVICE_TIMEOUT}") do
+      describe command("sleep #{SERVICE_TIMEOUT}") do
         it "All required ports are listening" do
           ports.each do |port|
             puts "\tChecking port '#{port}'"
