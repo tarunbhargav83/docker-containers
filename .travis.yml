@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 
 language: ruby
 
@@ -10,29 +10,18 @@ cache:
 # services:
   # - docker
 
-env:
-  global:
-    - DOCKER_VERSION=1.8.1  # Install Docker version 1.7.1
-    - DOCKER_VERSION=get.docker.com  # Install Docker using get.docker.com (may break)
-
-    - BRANCH=stable         # Use 'stable' branch
-    - BRANCH=develop        # Use 'develop' branch
-
-    - QUIET=1               # Less verbose logging
-    - UML_FIG=0             # Don't install fig
-    - UML_DOCKERCOMPOSE=0   # Install docker-compose
-
 before_install:
   - gem install -f docker-api
-  - sudo apt-get remove -y lxc-docker
-  - curl -sLo - http://j.mp/install-travis-docker | sh -xe
+  - mkdir -p /tmp/dind
+  - docker run --privileged -v /tmp/dind:/var/run -t -i jpetazzo/dind
+  - export DOCKER_HOST='unix:///tmp/dind/docker.sock'
 
 script:
-  - ./run docker pull chinthakagodawita/soe:php5.5
-  - ./run docker run -d --name=soe -t chinthakagodawita/soe:php5.5
-  - ./run docker exec soe "supervisorctl status"
-  - ./run docker kill soe
-  - ./run docker rm soe
+  - docker pull chinthakagodawita/soe:php5.5
+  - docker run -d --name=soe -t chinthakagodawita/soe:php5.5
+  - docker exec soe "supervisorctl status"
+  - docker kill soe
+  - docker rm soe
   # - ruby _scripts/travis-docker-test.rb
   # - bundle exec rake docker:build
   # - bundle exec rspec spec/soe/php55_spec.rb
