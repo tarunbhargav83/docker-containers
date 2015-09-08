@@ -13,8 +13,9 @@ services:
 before_install:
   - gem install -f docker-api
   - mkdir -p /tmp/dind
-  - docker run --privileged -v /tmp/dind:/var/run --lxc-conf="lxc.aa_profile=unconfined" -d fgrehm/alpine-dind
+  - docker run --privileged -v /tmp/dind:/var/run -d fgrehm/alpine-dind
   - export DOCKER_HOST='unix:///tmp/dind/docker.sock'
+  - export DOCKER_TLS_VERIFY=0
 
 script:
   - docker pull chinthakagodawita/soe:php5.5
