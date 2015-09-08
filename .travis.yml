@@ -12,6 +12,7 @@ services:
 
 before_install:
   - gem install -f docker-api
+  - curl -sSL https://get.docker.com/ | sudo sh
 
 script:
   - docker pull chinthakagodawita/soe:php5.5
