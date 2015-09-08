@@ -13,7 +13,7 @@ services:
 before_install:
   - gem install -f docker-api
   - mkdir -p /tmp/dind
-  - docker run --privileged -v /tmp/dind:/var/run -t -i fgrehm/alpine-dind
+  - docker run --privileged -v /tmp/dind:/var/run -d fgrehm/alpine-dind
   - export DOCKER_HOST='unix:///tmp/dind/docker.sock'
 
 script:
