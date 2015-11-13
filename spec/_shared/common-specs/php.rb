@@ -1,23 +1,32 @@
 require 'serverspec'
 
-shared_context 'soe' do
-  include_context 'php'
+shared_context 'php' do
+  include_context 'base'
 
-  let(:soe_packages) { [
-    'socat',
-    'php5-xdebug',
-    'ssmtp'
+  let(:php_packages) { [
+    'apache2',
+    'php5',
+    'mysql-client',
+    'memcached',
+    'php5-gd',
+    'php5-dev',
+    'php5-curl',
+    'php5-mcrypt',
+    'php5-mysql',
+    'php5-memcached',
+    'php-soap',
+    'php-pear',
   ] }
   let(:soe_supervisord_services) { [
-    'socat',
-    'apache2errorlog',
-    'mailhog',
+    'apache2',
+    'memcached',
+    'stdout'
   ] }
   let(:apache_version) { '2.4.7' }
   let(:php_version) { '5.5' }
 
-  it "Installs all required SOE packages" do
-    soe_packages.each do |package|
+  it "Installs all required PHP packages" do
+    php_packages.each do |package|
       puts "\tChecking package '#{package}'"
       expect(package(package)).to be_installed
     end
@@ -28,7 +37,6 @@ shared_context 'soe' do
       its(:stdout) { should include('rewrite_module') }
       its(:stdout) { should include('php5_module') }
       its(:stdout) { should include('vhost_alias') }
-      its(:stdout) { should include('ssl') }
       its(:stdout) { should include('headers') }
     end
 
@@ -44,11 +52,11 @@ shared_context 'soe' do
     end
   end
 
-  describe file('/etc/supervisor/conf.d/soe.conf') do
+  describe file('/etc/supervisor/conf.d/php.conf') do
     it { should be_file }
   end
 
-  describe "SOE supervisord services" do
+  describe "PHP supervisord services" do
     describe command("sleep #{Constants::SUPERVISORD_SERVICE_TIMEOUT}") do
       its(:exit_status) { should eq 0 }
     end
@@ -66,27 +74,11 @@ shared_context 'soe' do
       it { should be_listening }
     end
 
-    describe port(443) do
-      it { should be_listening }
-    end
-
     # Memcached.
     describe port(11211) do
       it { should be_listening }
     end
 
-    # PimpMyLog.
-    describe port(8000) do
-      it { should be_listening }
-    end
-
-    # MailHog.
-    describe port(1025) do
-      it { should be_listening }
-    end
-    describe port(8025) do
-      it { should be_listening }
-    end
   end
 
   describe 'Working Drush command' do
